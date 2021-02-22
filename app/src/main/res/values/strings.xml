@@ -1,9 +1,0 @@
-<resources>
-    <string name="app_name">FacetoFace</string>
-    <string name="login">LOGIN</string>
-    <string name="username">Full Name</string>
-    <string name="createaccount">CREATE AN ACCOUNT</string>
-    <string name="hintemail">Email Address</string>
-    <string name="hintpass">Password</string>
-    <string name="alreadyacc">ALREADY HAVE AN ACCOUNT</string>
-</resources>
