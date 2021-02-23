@@ -9,6 +9,7 @@ import com.example.face2face.databinding.ItemContainerUserBinding;
 import com.example.face2face.listeners.UsersListener;
 import com.example.face2face.models.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -17,10 +18,16 @@ import androidx.recyclerview.widget.RecyclerView;
 public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHolder>{
     private List<User> users;
     private UsersListener usersListener;
+    private List<User> selectedUsers;
 
     public UsersAdapter(List<User> users,UsersListener usersListener) {
         this.users = users;
         this.usersListener=usersListener;
+        selectedUsers=new ArrayList<>();
+    }
+
+    public List<User> getSelectedUsers() {
+        return selectedUsers;
     }
 
     @NonNull
@@ -61,6 +68,47 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHold
                 @Override
                 public void onClick(View v) {
                     usersListener.initiateVideoMeeting(user);
+                }
+            });
+            binding.userContainer.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (binding.imageselected.getVisibility()!=View.VISIBLE)
+                    {
+                        selectedUsers.add(user);
+                        binding.imageselected.setVisibility(View.VISIBLE);
+                        binding.imagevideomeeting.setVisibility(View.GONE);
+                        binding.imageAudioMeet.setVisibility(View.GONE);
+                        usersListener.onMultipleUsersAction(true);
+                    }
+
+                    return true;
+                }
+            });
+            binding.userContainer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (binding.imageselected.getVisibility() ==View.VISIBLE)
+                    {
+                        selectedUsers.remove(user);
+                        binding.imageselected.setVisibility(View.GONE);
+                        binding.imagevideomeeting.setVisibility(View.VISIBLE);
+                        binding.imageAudioMeet.setVisibility(View.VISIBLE);
+                        if (selectedUsers.size() == 0)
+                        {
+                            usersListener.onMultipleUsersAction(false);
+
+                        }
+                        else {
+                            if (selectedUsers.size()>0)
+                            {
+                                selectedUsers.add(user);
+                                binding.imageselected.setVisibility(View.VISIBLE);
+                                binding.imageAudioMeet.setVisibility(View.GONE);
+                                binding.imagevideomeeting.setVisibility(View.GONE);
+                            }
+                        }
+                    }
                 }
             });
 

@@ -1,11 +1,17 @@
 package com.example.face2face.activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Toast;
 
@@ -30,6 +36,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.installations.FirebaseInstallations;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
     private List<User> users;
     private UsersAdapter usersAdapter;
 
-
+private int REQUEST_CODE_BATTERY_OPTIMIZATION=1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
         binding.swipeRefreshLayout.setOnRefreshListener(this::getUsers);
 
         getUsers();
+        checkforbatteryoptimization();
 
 
     }
@@ -184,7 +192,67 @@ public class MainActivity extends AppCompatActivity implements UsersListener {
             Toast.makeText(this,user.firstName+" "+user.lastName+" is not available for meeting",Toast.LENGTH_SHORT).show();
         }
         else {
-            Toast.makeText(this,"Audio meeting with "+user.firstName+" "+user.lastName,Toast.LENGTH_SHORT).show();
+           Intent intent=new Intent(getApplicationContext(),OutgoingInvitationActivity.class);
+           intent.putExtra("user",user);
+           intent.putExtra("type","audio");
+           startActivity(intent);
+        }
+    }
+
+    @Override
+    public void onMultipleUsersAction(Boolean isMultipleUsersSelected) {
+        if (isMultipleUsersSelected)
+        {
+            binding.imageconference.setVisibility(View.VISIBLE);
+            binding.imageconference.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent=new Intent(getApplicationContext(),OutgoingInvitationActivity.class);
+                    intent.putExtra("selectedUsers",new Gson().toJson(usersAdapter.getSelectedUsers()));
+                    intent.putExtra("type","video");
+                    intent.putExtra("isMultiple",true);
+                    startActivity(intent);
+                }
+            });
+        }
+        else {
+            binding.imageconference.setVisibility(View.GONE);
+        }
+    }
+    private void checkforbatteryoptimization()
+    {
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M)
+        {
+            PowerManager powerManager=(PowerManager)getSystemService(POWER_SERVICE);
+            if (!powerManager.isIgnoringBatteryOptimizations(getPackageName()))
+            {
+                AlertDialog.Builder builder=new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("Waring");
+                builder.setMessage("Battery optimization is enabled.It can interrupt running backgroung serivces");
+                builder.setPositiveButton("Disable", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent=new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                        startActivityForResult(intent,REQUEST_CODE_BATTERY_OPTIMIZATION);
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.create().show();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode==REQUEST_CODE_BATTERY_OPTIMIZATION)
+        {
+            checkforbatteryoptimization();
         }
     }
 }

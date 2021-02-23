@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.MainActivity">
+    tools:context=".activities.MainActivity"
+    android:animateLayoutChanges="true">
 
  <LinearLayout
      android:id="@+id/layoutHeader"
@@ -73,5 +74,17 @@
         android:textSize="@dimen/_13ssp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/layoutHeader" />
+    <ImageView
+        android:layout_width="@dimen/_45sdp"
+        android:layout_height="@dimen/_45sdp"
+        android:id="@+id/imageconference"
+        android:layout_marginEnd="@dimen/_25sdp"
+        android:layout_marginBottom="@dimen/_25sdp"
+        android:contentDescription="@string/app_name"
+        android:src="@drawable/ic_conference"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/colorPrimary"></ImageView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
